@@ -1,6 +1,6 @@
 """Jason Stys: closed, bounded SI-unit replay contracts. Lines/variables: docs/SOURCE_MAP.md.
 
-No aircraft identifiers, coordinates, network addresses or executable input are accepted.
+Synthetic local coordinates only; no geographic-coordinate, URL, identity-lookup or executable fields.
 """
 
 from typing import Annotated, Literal
@@ -34,7 +34,7 @@ class Report(Contract):
     horizontal_error_m: Annotated[Finite, Field(ge=0, le=1000)] = 0.0
     vertical_error_m: Annotated[Finite, Field(ge=0, le=1000)] = 0.0
     velocity_error_mps: Annotated[Finite, Field(ge=0, le=30)] = 0.0
-    altitude_reference: Reference = "MSL"
+    altitude_reference: Reference = "UNKNOWN"
 
 
 class Zone(Contract):
@@ -46,7 +46,7 @@ class Zone(Contract):
     radius_m: Annotated[Finite, Field(ge=1, le=10_000)]
     floor_m: Position
     ceiling_m: Position
-    altitude_reference: Reference = "MSL"
+    altitude_reference: Reference = "UNKNOWN"
     active_from_s: Annotated[Finite, Field(ge=0, le=4_000_000_000)]
     active_until_s: Annotated[Finite, Field(ge=0, le=4_000_000_000)]
     source_updated_s: Annotated[Finite, Field(ge=0, le=4_000_000_000)]

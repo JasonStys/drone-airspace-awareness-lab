@@ -20,8 +20,8 @@ See the exact closed schemas in `awareness/models.py` and original JSON in `exam
 - `as_of_s`, report `observed_s`, zone activation and source-update values: seconds in the same synthetic clock, range 0–4e9. They are not automatically current wall-clock time.
 - `horizon_s` 0–120 (default60), `stale_after_s`1–120(default15), `zone_max_age_s`1–86400(default3600).
 - Horizontal margin1–2000m(default100), vertical margin1–1000m(default30); **not regulatory minima**.
-- Report: label, east/north/altitude metres, signed east/north/vertical velocity m/s, horizontal/vertical position-error bounds0–1000m, velocity-error bound0–30m/s. Altitude reference MSL/AGL/UNKNOWN. Position ±100000m; component speed ±300m/s.
-- Zone: unique name, centre east/north, radius1–10000m, floor/ceiling altitude, reference, active-from/until, source-updated. The example is the provenance; zones are synthetic and unverified, never official restrictions.
+- Report: label, east/north/altitude metres, signed east/north/vertical velocity m/s, horizontal/vertical position-error bounds0–1000m, velocity-error bound0–30m/s. Altitude reference MSL/AGL/UNKNOWN; omitted reference defaults to UNKNOWN, never MSL. Omitted error values default to zero for idealized synthetic exercises, not a verified accuracy estimate. Position ±100000m; component speed ±300m/s.
+- Zone: unique name, centre east/north, radius1–10000m, floor/ceiling altitude, reference (omitted means UNKNOWN), active-from/until, source-updated. The example is the provenance; zones are synthetic and unverified, never official restrictions.
 - Labels: up to40 ASCII letters/numbers/spaces/underscore/hyphen; must begin alphanumeric. Future observations/sources, reversed intervals, contradictory duplicates and excessive cardinalities fail.
 
 Output includes aligned/frozen tracks, quality flags and ages, alert object names/kind/exact start/end seconds, stale-zone warnings, superseded-report count, incomparable-pair and unassessed-track counts, model and non-clearance statement. Export wraps the input and result with author metadata. No hidden score/ranking or collision probability is calculated.

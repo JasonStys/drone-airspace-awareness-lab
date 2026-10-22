@@ -1,10 +1,12 @@
 /** @file Jason Stys: real Python/Rust service browser acceptance, no mocks/retries; lines: docs/SOURCE_MAP.md. */
 import { defineConfig, devices } from "@playwright/test";
-const python =
-  process.env.PYTHON ??
-  (process.platform === "win32"
+import { existsSync } from "node:fs";
+const localPython =
+  process.platform === "win32"
     ? ".venv/Scripts/python.exe"
-    : ".venv/bin/python");
+    : ".venv/bin/python";
+const python =
+  process.env.PYTHON ?? (existsSync(localPython) ? localPython : "python");
 export default defineConfig({
   testDir: "tests/browser",
   timeout: 30000,

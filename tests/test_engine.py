@@ -22,6 +22,7 @@ def report(name="A", **overrides):
         "ve_mps": 0,
         "vn_mps": 0,
         "vz_mps": 0,
+        "altitude_reference": "MSL",
         **overrides,
     }
 
@@ -127,6 +128,15 @@ def test_incompatible_altitudes():
     assert result["alerts"] == [] and result["incomparable_pairs"] == 1
 
 
+def test_missing_altitude_datum_is_unknown():
+    """Never silently assume MSL when a supplied observation omits its altitude reference."""
+    data = report()
+    del data["altitude_reference"]
+    result = analyze(replay([data, report("B")]))
+    assert result["unassessed_tracks"] == 1 and result["alerts"] == []
+    assert result["tracks"][0]["reference"] == "UNKNOWN"
+
+
 def test_expanded_uncertainty():
     """Bound includes age plus full horizon; no false precision or probability."""
     result = analyze(replay([report(observed_s=995, horizontal_error_m=2, velocity_error_mps=1)]))
@@ -142,6 +152,7 @@ def zone(**overrides):
         "radius_m": 20,
         "floor_m": 0,
         "ceiling_m": 200,
+        "altitude_reference": "MSL",
         "active_from_s": 1020,
         "active_until_s": 1030,
         "source_updated_s": 0,
@@ -172,6 +183,14 @@ def test_zone_activation_and_staleness():
 def test_zone_to_zone_is_not_traffic():
     """Do not report overlaps between static zones as moving-object traffic."""
     assert analyze(replay([], zones=[zone(), zone(name="Other")]))["alerts"] == []
+
+
+def test_zone_missing_datum_is_incomparable():
+    """An unlabelled zone cannot silently share an MSL vertical coordinate system."""
+    data = zone()
+    del data["altitude_reference"]
+    result = analyze(replay([report()], zones=[data]))
+    assert result["alerts"] == [] and result["incomparable_pairs"] == 1
 
 
 def test_example_and_empty():
@@ -271,4 +290,6 @@ def test_cli_oversize_and_maximum():
         [str(BINARY)], input="x" * 65537, text=True, capture_output=True, timeout=3
     )
     assert result.returncode == 2
+    malformed = subprocess.run([str(BINARY)], input=b"\xff", capture_output=True, timeout=3)
+    assert malformed.returncode == 2
     assert len(kernel([[0] * 8] * 80, 120, 100, 30)) == 3160

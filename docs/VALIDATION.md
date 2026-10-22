@@ -13,7 +13,7 @@ Environment: Windows11 build26300, Python3.14.6, Rust1.98.1, Node24.18.1. Actual
 | Check | Observed result |
 | --- | --- |
 | Rust | `cargo test --locked`: 2 native test groups pass, including hand-derived intervals and malformed/nonfinite/bounded-input cases. rustfmt and clippy warnings-denied pass. No third-party crate dependencies. Native line coverage not measured. |
-| Python | 69 tests pass, including actual native oracle/API cases and15 independent OSV policy cases. Branch-aware package coverage99.25% (202 statements +64 branches; only launcher main-guard path not hit in unit coverage). 90% gate unchanged. |
+| Python | 71 tests pass, including actual native oracle/API cases and15 independent OSV policy cases. Branch-aware package coverage99.25% (202 statements +64 branches; only launcher main-guard path not hit in unit coverage). 90% gate unchanged. |
 | Numerical oracle | 200 seeded pairs ×241 sampled times =48,200 independent direct-inequality comparisons; swap/translation/expanded-margin invariants and analytical boundary cases also pass. Sampling is not a proof about all continuous times. |
 | TypeScript | 10 tests; helpers100% statements/branches/functions/lines (5 statements,6 branches,5 functions,5 lines). Strict TS production build passes. DOM wiring is not part of this helper-coverage denominator. |
 | Browser | 12 actual-service journeys pass: Chromium, Firefox, WebKit and mobile WebKit,3 journeys each. WCAG2A/AA/2.1AA axe checks pass; no horizontal overflow in the tested layouts. No retries or fabricated native responses. Race cases pause requests then forward them to the real service. |
@@ -29,9 +29,12 @@ A Starlette test-client deprecation warning recommends its future httpx2 interfa
 - An initially ambiguous browser selector matched both the HTML output element's implicit status role and the analysis status paragraph. The test now targets the exact analysis message; all checks rerun, with no retries.
 - Browser sequencing exposed stale completion messaging while new work was running. The UI now explicitly enters loading/analyzing states, disables competing actions, invalidates previous exports immediately, and rejects stale request revisions. Four-browser regressions prove neither an old analysis nor a late example response can restore obsolete evidence or overwrite edits.
 - Lint findings in synthetic test fixtures were corrected; narrow annotations explain deliberately rejected bind-address text and deterministic noncryptographic mathematical randomness. No application security warning or advisory is suppressed.
+- Final correctness review changed omitted altitude references to UNKNOWN rather than silently assuming MSL, for both observations and zones. Separate regressions verify unassessed/incomparable results. Invalid UTF-8 native input also fails explicitly.
 
 ## Hosted verification
 
-Publishing and hosted validation are the next gate. Exact-run evidence will be recorded once all jobs complete. The workflows validate four OS/Python combinations and actual-service browser journeys; CodeQL separately covers Python/TypeScript security-and-quality, not native Rust.
+Initial source commit `0a0923d5ef4ae71b0b51505b9a2695649bd6adaf`: all four core OS/Python jobs passed, as did both CodeQL security-and-quality languages with0 open alerts. [Initial Validation](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/39718230499) correctly failed the browser job because its test launcher assumed `.venv/bin/python`, whereas Actions setup-python installed globally. This was repository test-harness configuration, not an application or GitHub platform failure. The launcher now chooses the actual local venv when present, otherwise the configured Python on PATH; an explicit PYTHON override remains supported. No retries, skipped browsers or lowered assertions were used.
+
+Final-head hosted evidence will be recorded after the corrected workflow completes. The workflows validate four OS/Python combinations and actual-service browser journeys; CodeQL separately covers Python/TypeScript security-and-quality, not native Rust.
 
 This educational lab is not production/flight certified; numerical/property/browser checks do not establish operational suitability.
