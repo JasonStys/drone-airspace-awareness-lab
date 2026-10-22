@@ -1,0 +1,23 @@
+# Jason Stys: strict lint, tests and branch-aware API coverage gate.
+[project]
+name = "drone-airspace-awareness-lab"
+version = "0.1.0"
+requires-python = ">=3.12"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+[tool.coverage.run]
+source = ["awareness"]
+branch = true
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S"]
+ignore = ["E501", "S101"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S603", "S607"]
+"tools/*" = ["S603"]

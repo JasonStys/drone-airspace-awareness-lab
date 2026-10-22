@@ -1,0 +1,18 @@
+{
+  "title": "Synthetic training corridor",
+  "as_of_s": 1000,
+  "horizon_s": 60,
+  "horizontal_margin_m": 100,
+  "vertical_margin_m": 30,
+  "stale_after_s": 15,
+  "zone_max_age_s": 3600,
+  "reports": [
+    {"track":"Training drone", "observed_s":1000, "east_m":-600, "north_m":0, "altitude_m":120, "ve_mps":15, "vn_mps":0, "vz_mps":0, "horizontal_error_m":10, "vertical_error_m":5, "velocity_error_mps":0.2, "altitude_reference":"MSL"},
+    {"track":"Simulated traffic", "observed_s":998, "east_m":0, "north_m":-500, "altitude_m":140, "ve_mps":0, "vn_mps":12, "vz_mps":0, "horizontal_error_m":20, "vertical_error_m":8, "velocity_error_mps":0.3, "altitude_reference":"MSL"},
+    {"track":"Expired observation", "observed_s":950, "east_m":500, "north_m":500, "altitude_m":110, "ve_mps":-10, "vn_mps":-10, "vz_mps":0, "altitude_reference":"MSL"},
+    {"track":"Unknown altitude", "observed_s":1000, "east_m":200, "north_m":600, "altitude_m":50, "ve_mps":0, "vn_mps":-5, "vz_mps":0, "altitude_reference":"UNKNOWN"}
+  ],
+  "zones":[
+    {"name":"Training exclusion", "east_m":400, "north_m":0, "radius_m":150, "floor_m":0, "ceiling_m":200, "altitude_reference":"MSL", "active_from_s":1000, "active_until_s":1100, "source_updated_s":999}
+  ]
+}

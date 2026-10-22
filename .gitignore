@@ -1,0 +1,14 @@
+# Jason Stys: exclude local data, dependencies, binaries and generated test output.
+.venv/
+.runtime/
+target/
+node_modules/
+dist/
+coverage/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage*
+test-results/
+playwright-report/
+*.log

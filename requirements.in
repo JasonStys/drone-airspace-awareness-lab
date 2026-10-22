@@ -1,0 +1,4 @@
+# Jason Stys: exact direct API dependencies; hashes in requirements.lock.
+fastapi==0.159.1
+uvicorn==0.54.0
+pydantic==2.14.1

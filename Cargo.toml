@@ -1,0 +1,21 @@
+# Jason Stys: dependency-free, memory-safe analytical awareness kernel.
+[package]
+name = "airspace-kernel"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[[bin]]
+name = "airspace-kernel"
+path = "native/main.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "deny"
+
+[profile.release]
+overflow-checks = true
+strip = true

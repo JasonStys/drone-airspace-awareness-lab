@@ -1,0 +1,286 @@
+/* Jason Stys: responsive, keyboard-accessible dark instrument panel; selectors: docs/FILE_CATALOG.md. */
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #edf4f9;
+  background: #0c1520;
+  font-synthesis: none;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header,
+main,
+footer {
+  max-width: 1440px;
+  margin: auto;
+  padding: 24px 40px;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #2b3b49;
+}
+.brand {
+  font-size: 32px;
+  color: #66e3c4;
+  text-decoration: none;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-weight: 800;
+}
+.brand span {
+  color: #ecf4fa;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+.pill {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #a4e9d8;
+  border: 1px solid #3f6a64;
+  border-radius: 4px;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+.intro {
+  padding: 28px 0 24px;
+  max-width: 850px;
+}
+.eyebrow {
+  color: #66e3c4;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(36px, 4.5vw, 64px);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+  margin: 14px 0 22px;
+}
+.lead {
+  font-size: 17px;
+  color: #bdcbd8;
+  line-height: 1.6;
+  max-width: 660px;
+}
+.warning {
+  background: #282619;
+  border: 1px solid #797044;
+  border-radius: 8px;
+  padding: 16px 20px;
+  color: #f4e6b9;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 20px;
+}
+.panel {
+  background: #121f2d;
+  border: 1px solid #304152;
+  border-radius: 10px;
+  padding: 22px;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.panel-head span {
+  font-size: 11px;
+  color: #c1d0dc;
+}
+h2 {
+  font-size: 17px;
+  margin: 0;
+}
+h3 {
+  font-size: 14px;
+}
+#plot {
+  width: 100%;
+  max-height: 540px;
+  background: #0c1823;
+  border: 1px solid #304152;
+  border-radius: 5px;
+}
+.legend,
+.muted {
+  font-size: 12px;
+  color: #b5c7d7;
+  line-height: 1.6;
+}
+.legend {
+  padding: 12px 0;
+}
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #cfdae4;
+  margin: 16px 0 7px;
+}
+input:not([type="range"]),
+textarea {
+  background: #0d1722;
+  border: 1px solid #526577;
+  border-radius: 5px;
+  padding: 10px;
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  color: #e8f3fb;
+}
+input[type="range"] {
+  width: 100%;
+  accent-color: #66e3c4;
+}
+textarea {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  resize: vertical;
+  min-height: 130px;
+  max-height: 300px;
+}
+output {
+  float: right;
+  color: #66e3c4;
+}
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+button {
+  background: #66e3c4;
+  color: #09251f;
+  border: 1px solid #66e3c4;
+  border-radius: 5px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+}
+.secondary {
+  background: transparent;
+  color: #c9e5df;
+  border-color: #526577;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+#message {
+  font-size: 12px;
+  line-height: 1.5;
+  min-height: 36px;
+  color: #e4d59b;
+}
+details {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c3d2df;
+  border-top: 1px solid #304152;
+  padding-top: 16px;
+}
+summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.evidence {
+  margin-top: 20px;
+}
+#status {
+  font-size: 13px;
+  color: #f4e6b9;
+}
+.table-scroll {
+  overflow: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: left;
+}
+caption {
+  text-align: left;
+  color: #b8cbd9;
+  font-size: 11px;
+  padding: 10px 0;
+}
+th {
+  color: #8dcdbc;
+  font-size: 11px;
+}
+td,
+th {
+  padding: 12px 8px;
+  border-bottom: 1px solid #304152;
+}
+#quality {
+  padding-left: 20px;
+  font-size: 12px;
+  color: #bfcedc;
+  line-height: 1.9;
+}
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #b8cbd9;
+  padding-bottom: 38px;
+}
+a {
+  color: #8de7cf;
+}
+:focus-visible {
+  outline: 3px solid #f5cf75;
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  header,
+  main,
+  footer {
+    padding: 20px;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .panel {
+    padding: 16px;
+  }
+  .panel-head {
+    flex-wrap: wrap;
+  }
+  header > .pill {
+    font-size: 8px;
+    white-space: normal;
+    max-width: 110px;
+  }
+  h1 {
+    font-size: 42px;
+  }
+  #plot {
+    max-height: 420px;
+  }
+  .panel-head #counts {
+    line-height: 1.6;
+  }
+}
