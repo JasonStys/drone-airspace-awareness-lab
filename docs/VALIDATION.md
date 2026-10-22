@@ -35,6 +35,12 @@ A Starlette test-client deprecation warning recommends its future httpx2 interfa
 
 Initial source commit `0a0923d5ef4ae71b0b51505b9a2695649bd6adaf`: all four core OS/Python jobs passed, as did both CodeQL security-and-quality languages with0 open alerts. [Initial Validation](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/39718230499) correctly failed the browser job because its test launcher assumed `.venv/bin/python`, whereas Actions setup-python installed globally. This was repository test-harness configuration, not an application or GitHub platform failure. The launcher now chooses the actual local venv when present, otherwise the configured Python on PATH; an explicit PYTHON override remains supported. No retries, skipped browsers or lowered assertions were used.
 
-Final-head hosted evidence will be recorded after the corrected workflow completes. The workflows validate four OS/Python combinations and actual-service browser journeys; CodeQL separately covers Python/TypeScript security-and-quality, not native Rust.
+Reviewed implementation commit **`5ef9ca930f0adbbb60be96dd8494155b1938b97d`**:
+
+- [Validation39718566184](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/39718566184): **all5 jobs passed** — Ubuntu24.04/Python3.12, Ubuntu24.04/Python3.14, Windows/Python3.14, macOS/Python3.14 and the real native-backed Chromium/Firefox/WebKit/mobile browser job. The CI setup-python PATH fallback is now exercised successfully, not merely inferred from local results.
+- [CodeQL39718566148](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/39718566148): **both Python and JavaScript/TypeScript security-and-quality jobs passed**;0 open code-scanning alerts when checked. Rust is covered by clippy/native/independent-oracle checks, not these CodeQL jobs.
+- Main and origin/main matched the reviewed implementation. This subsequent documentation-only commit records those immutable run links and is also subject to the same workflows. The [latest main-branch runs](https://github.com/JasonStys/drone-airspace-awareness-lab/actions?query=branch%3Amain) show the final documentation commit's status without pretending a run can contain its own future ID.
+
+Storage recheck2026-10-21T20:46:19-07:00:99 repositories, still62,959,952 artifact bytes,8,185,324,614 separate cache bytes; quota percentage unavailable. This repository's artifact API returned0 artifacts/0bytes and cache-usage API returned0caches/0bytes. No deletions or retention changes occurred.
 
 This educational lab is not production/flight certified; numerical/property/browser checks do not establish operational suitability.
