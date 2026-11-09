@@ -2,6 +2,20 @@
 
 Jason Stys: a **synthetic, advisory-only traffic-awareness workbench** that makes missing data and uncertainty visible instead of treating a quiet display as clear airspace.
 
+The **declared-pair assessment coverage** inspector explains every supplied
+track/track and track/zone pair, including observations excluded from native
+geometry because they are stale or lack an altitude reference. Select a declared
+track to inspect exact reasons, datum mismatches, inactive zone windows, modeled
+overlap intervals and stale source warnings. Observation timestamps, inclusive
+freshness boundaries, exact duplicates and older superseded observations are
+reported separately. The complete ledger accompanies the existing JSON export;
+editing input clears the old display and disables obsolete exports.
+
+Freshness is assessed at the supplied snapshot, not continuously throughout the
+projection. No declared pairs, no modeled overlap, or a quiet display never proves
+clear airspace. The existing Rust geometry, bounds and advisory-only rules are
+unchanged. See [workflow validation](docs/reports/PRACTICAL_WORKFLOWS_20261109.md).
+
 [Validation](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/workflows/validate.yml) · [CodeQL](https://github.com/JasonStys/drone-airspace-awareness-lab/actions/workflows/codeql.yml) · [Architecture](docs/ARCHITECTURE.md) · [Help](docs/OPERATIONS.md) · [Measured evidence](docs/VALIDATION.md)
 
 ## What it demonstrates

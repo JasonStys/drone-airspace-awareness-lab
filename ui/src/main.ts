@@ -24,6 +24,77 @@ let analysis: Analysis | null = null;
 let input: Record<string, unknown> | null = null;
 let busy = false;
 let revision = 0;
+const coveragePanel = document.createElement("section");
+coveragePanel.className = "panel evidence";
+coveragePanel.append(text("h2", "Declared-pair assessment coverage"));
+const coverageNotice = text("p", "No current assessment.");
+const coverageLabel = text("label", "Inspect declared track ");
+const coverageTrack = document.createElement("select");
+coverageTrack.setAttribute("aria-label", "Inspect declared track");
+coverageLabel.append(coverageTrack);
+const coverageObservation = text("p", "");
+const coverageTable = document.createElement("table");
+coverageTable.append(
+  text("caption", "Declared partners and assessment eligibility"),
+);
+const coverageHead = document.createElement("thead");
+const coverageHeader = document.createElement("tr");
+for (const title of ["Partner", "Assessment", "Window / limitations"]) {
+  const cell = text("th", title);
+  cell.setAttribute("scope", "col");
+  coverageHeader.append(cell);
+}
+coverageHead.append(coverageHeader);
+const coverageBody = document.createElement("tbody");
+coverageBody.setAttribute("aria-label", "Declared partner coverage");
+coverageTable.append(coverageHead, coverageBody);
+const coverageScroll = text("div", "");
+coverageScroll.className = "table-scroll";
+coverageScroll.append(coverageTable);
+coveragePanel.append(
+  coverageNotice,
+  coverageLabel,
+  coverageObservation,
+  coverageScroll,
+);
+document.getElementById("main")!.append(coveragePanel);
+coverageTrack.addEventListener("change", renderCoverage);
+
+/** Inspect every declared partner, including stale/unknown rows excluded from native geometry. */
+function renderCoverage(): void {
+  coverageBody.replaceChildren();
+  coverageObservation.textContent = "";
+  if (!analysis) return;
+  const ledger = analysis.assessment_coverage;
+  coverageNotice.textContent = `${ledger.notice} ${ledger.pairs.length} declared pairs: ${
+    Object.entries(ledger.status_counts)
+      .map(([key, value]) => `${key} ${value}`)
+      .join(" · ") || "none"
+  }.`;
+  const selected = coverageTrack.value;
+  const observation = ledger.observations.find((row) => row.track === selected);
+  if (observation)
+    coverageObservation.textContent = `Observed at ${observation.observed_s} s; snapshot ${ledger.as_of_s} s; freshness inclusive through ${observation.fresh_through_s} s. ${observation.reports_received} reports / ${observation.distinct_timestamps} distinct timestamps / ${observation.duplicate_reports} exact duplicates / ${observation.superseded_observations} older observations.`;
+  for (const pair of ledger.pairs.filter(
+    (row) =>
+      row.first === selected ||
+      (row.kind === "traffic" && row.second === selected),
+  )) {
+    const row = document.createElement("tr");
+    row.append(
+      text(
+        "td",
+        `${pair.kind} / ${pair.first === selected ? pair.second : pair.first}`,
+      ),
+      text("td", pair.status),
+      text(
+        "td",
+        `${pair.reasons.join(", ") || "eligible at snapshot"} · assessed ${pair.assessment_window_s?.join("–") ?? "no active window"} s · overlap ${pair.overlap_window_s?.join("–") ?? "none observed"}${pair.stale_zone_source ? " · STALE ZONE SOURCE" : ""}`,
+      ),
+    );
+    coverageBody.append(row);
+  }
+}
 
 /** Render untrusted text as text; caller controls element names only. */
 function text(tag: string, value: string): HTMLElement {
@@ -119,6 +190,10 @@ function invalidate(): void {
     "Inputs changed or analysis unavailable. No current assessment.";
   element("alerts").replaceChildren();
   element("quality").replaceChildren();
+  coverageTrack.replaceChildren();
+  coverageNotice.textContent = "No current assessment.";
+  coverageBody.replaceChildren();
+  coverageObservation.textContent = "";
   element("counts").textContent = "No current analysis";
   element("model").textContent = "";
   element("snapshot").textContent = "Awaiting analysis";
@@ -157,6 +232,13 @@ async function run(): Promise<void> {
       throw new Error(result.error ?? JSON.stringify(result.errors));
     input = replay;
     analysis = result as Analysis;
+    for (const observation of analysis.assessment_coverage.observations) {
+      const option = document.createElement("option");
+      option.value = observation.track;
+      option.textContent = observation.track;
+      coverageTrack.append(option);
+    }
+    renderCoverage();
     slider.max = String(replay.horizon_s);
     slider.value = "0";
     element("snapshot").textContent = analysis.title;
