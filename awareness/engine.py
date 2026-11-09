@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from awareness.coverage import assessment_coverage
 from awareness.models import Replay
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -150,6 +151,7 @@ def analyze(replay: Replay):
         "title": replay.title,
         "tracks": tracks,
         "alerts": alerts,
+        "assessment_coverage": assessment_coverage(replay, latest, alerts),
         "unassessed_tracks": unassessed,
         "incomparable_pairs": incompatible,
         "superseded_reports": len(replay.reports) - len(latest),

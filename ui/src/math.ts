@@ -20,6 +20,31 @@ export interface Analysis {
   title: string;
   tracks: Track[];
   alerts: Alert[];
+  assessment_coverage: {
+    as_of_s: number;
+    observations: {
+      track: string;
+      observed_s: number;
+      fresh_at_snapshot: boolean;
+      fresh_through_s: number;
+      reports_received: number;
+      distinct_timestamps: number;
+      duplicate_reports: number;
+      superseded_observations: number;
+    }[];
+    pairs: {
+      kind: string;
+      first: string;
+      second: string;
+      status: string;
+      reasons: string[];
+      assessment_window_s: number[] | null;
+      overlap_window_s: number[] | null;
+      stale_zone_source: boolean;
+    }[];
+    status_counts: Record<string, number>;
+    notice: string;
+  };
   unassessed_tracks: number;
   incomparable_pairs: number;
   superseded_reports: number;
