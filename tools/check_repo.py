@@ -13,7 +13,9 @@ def main():
         value = public_text(path)
         if path.suffix in {".py", ".rs", ".ts", ".mjs"}:
             assert "Jason Stys:" in value[:600] and "docs/SOURCE_MAP.md" in value[:600], relative
-        assert not re.search(r"(?:ghp_|github_pat_)[A-Za-z0-9_]{30,}", value), relative
+        assert not re.search(r"(?:ghp_|github_pat_)[A-Za-z0-9_]{30,}", value), (
+            f"possible credential in tracked source: {relative}"
+        )
         assert ("-----BEGIN " + "PRIVATE KEY-----") not in value, relative
         if relative.startswith(".github/workflows/"):
             for ref in re.findall(r"uses:\s*([^\s]+)", value):
