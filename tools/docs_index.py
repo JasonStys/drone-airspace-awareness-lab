@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDE = {
@@ -27,6 +28,11 @@ EXCLUDE = {
     "playwright-report",
 }
 SPECIAL = {
+    ".gitattributes": "Portable text normalization and explicit reviewed Word binary handling.",
+    "docs/handbook.md": "Organized current usage, architecture, security and validation entry point.",
+    "docs/reports/project-guide.docx": "Reviewed Word guide bound to the documented source revision.",
+    "docs/reports/publications.json": "Exact publication digests, approved page identities and immutable source baseline.",
+    "docs/reports/documentation-refresh-2026-11-09.md": "Dated documentation integration validation and interpretation limits.",
     "package.json": "Exact frontend/test dependency pins and reproducible task commands.",
     "package-lock.json": "Resolved npm dependency versions and integrity hashes.",
     "requirements.lock": "Production Python transitive dependency hash lock.",
@@ -38,6 +44,30 @@ SPECIAL = {
     "docs/FILE_CATALOG.md": "Generated file-by-file responsibility catalog.",
     "docs/SOURCE_MAP.md": "Generated declaration/variable physical line navigation.",
 }
+
+
+def public_text(path: Path) -> str:
+    """Inspect all XML/relationships in the one authored Word path; unknown binary files still fail closed."""
+    if path.relative_to(ROOT).as_posix() != "docs/reports/project-guide.docx":
+        return path.read_text(encoding="utf-8")
+    with ZipFile(path) as package:
+        members = package.infolist()
+        names = [member.filename for member in members]
+        if (
+            len(members) > 256
+            or len(set(names)) != len(names)
+            or sum(member.file_size for member in members) > 8 * 1024 * 1024
+            or "word/document.xml" not in names
+            or "[Content_Types].xml" not in names
+            or any("vbaProject" in item or item.startswith("word/embeddings/") for item in names)
+        ):
+            raise ValueError("Invalid or unsupported reviewed Word package")
+        inspected = [member for member in members if member.filename.endswith((".xml", ".rels"))]
+        if sum(member.file_size for member in inspected) > 2 * 1024 * 1024:
+            raise ValueError("Reviewed Word XML exceeds inspection budget")
+        if package.testzip() is not None:
+            raise ValueError("Reviewed Word package integrity failed")
+        return "\n".join(package.read(member).decode("utf-8") for member in inspected)
 
 
 def files():
@@ -70,7 +100,7 @@ def render():
     ]
     for path in files():
         relative = path.relative_to(ROOT).as_posix()
-        content = path.read_text(encoding="utf-8")
+        content = public_text(path)
         description = SPECIAL.get(relative) or next(
             (
                 line.strip(' #/*!-"<>')
