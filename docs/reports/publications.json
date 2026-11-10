@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "project": "drone-airspace-awareness-lab",
+  "author": "Jason Stys",
+  "editionDate": "2026-11-09",
+  "sourceBaseline": "bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+  "sourceUrl": "https://github.com/JasonStys/drone-airspace-awareness-lab/tree/bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+  "functionalEvidenceBaseline": "bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+  "evidenceObservedAt": "2026-11-10T05:25:40.628667+00:00",
+  "workflowEvidence": [
+    {
+      "conclusion": "success",
+      "databaseId": 42706963544,
+      "event": "push",
+      "headSha": "bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+      "name": "CodeQL",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/42706963544"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42706963354,
+      "event": "push",
+      "headSha": "bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+      "name": "Validation",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/drone-airspace-awareness-lab/actions/runs/42706963354"
+    }
+  ],
+  "summary": "Show pair/zone coverage ledgers with stale tracks, datum mismatch, unknown intervals and exclusion reasons.",
+  "rationale": "Explains what an awareness result actually covers instead of implying empty or incomplete data means clear airspace.",
+  "limitations": [
+    "Fictional local-coordinate constant-velocity awareness, not flight permission, collision probability or avoidance control.",
+    "Freshness is evaluated at the supplied snapshot, not continuously across the projection.",
+    "No declared pairs or modeled overlap does not prove clear airspace; undeclared objects and incompatible altitude references remain unknown.",
+    "Source-first project with current package/service validation; no public native desktop application release is supplied."
+  ],
+  "documents": [
+    {
+      "filename": "project-guide.docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 44870,
+      "sha256": "c38ea3c4e242a2486b6796f5f31e9fc10b1b7a290fcafbe1e07dba2e91255681",
+      "sourceBaseline": "bff39487f0f1c018f52e12eca9eeacc3d07643d1",
+      "visualReview": {
+        "approved": true,
+        "method": "Every rendered page individually viewed at readable original resolution",
+        "pageCount": 5,
+        "renderedPageSha256": {
+          "page-1.png": "fe6036ffb7ecfc2bf11456f840c29627f69196c2ca87ad58c1b4ce30ef1ec846",
+          "page-2.png": "09e2a5972c6abb310c3f5ca89c060ee951d017772ddd49028bd77700948c854a",
+          "page-3.png": "6c894c3a1189f314cde88a25b69b0b6ceb619104a669b291baf8729161440df8",
+          "page-4.png": "9971d3ad7fd62c194a9096b839baec08c6fbe0174b1c4cf66ac356efd13c534b",
+          "page-5.png": "8729abe1b4177a0d023ae0e624b07334f6ee43d8b526a1261bb9cc57fd024422"
+        }
+      }
+    }
+  ],
+  "scope": "Reviewed documentation editions of the cited source. Checksums identify bytes, not authorship. Historical measurements retain their own dates; integration CI must be checked separately."
+}

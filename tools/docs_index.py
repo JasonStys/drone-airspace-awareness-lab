@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDE = {
@@ -27,6 +28,11 @@ EXCLUDE = {
     "playwright-report",
 }
 SPECIAL = {
+    ".gitattributes": "Portable text normalization and explicit reviewed Word binary handling.",
+    "docs/handbook.md": "Organized current usage, architecture, security and validation entry point.",
+    "docs/reports/project-guide.docx": "Reviewed Word guide bound to the documented source revision.",
+    "docs/reports/publications.json": "Exact publication digests, approved page identities and immutable source baseline.",
+    "docs/reports/documentation-refresh-2026-11-09.md": "Dated documentation integration validation and interpretation limits.",
     "package.json": "Exact frontend/test dependency pins and reproducible task commands.",
     "package-lock.json": "Resolved npm dependency versions and integrity hashes.",
     "requirements.lock": "Production Python transitive dependency hash lock.",
@@ -38,6 +44,20 @@ SPECIAL = {
     "docs/FILE_CATALOG.md": "Generated file-by-file responsibility catalog.",
     "docs/SOURCE_MAP.md": "Generated declaration/variable physical line navigation.",
 }
+
+
+def public_text(path):
+    """Inspect XML text in the one reviewed Word path while retaining all existing public-source scans."""
+    if path.relative_to(ROOT).as_posix() == "docs/reports/project-guide.docx":
+        with ZipFile(path) as package:
+            if package.testzip() is not None or "word/document.xml" not in package.namelist():
+                raise ValueError("Invalid reviewed Word package")
+            return "\n".join(
+                package.read(member).decode("utf-8")
+                for member in package.namelist()
+                if member.endswith(".xml")
+            )
+    return path.read_text(encoding="utf-8")
 
 
 def files():
@@ -70,7 +90,7 @@ def render():
     ]
     for path in files():
         relative = path.relative_to(ROOT).as_posix()
-        content = path.read_text(encoding="utf-8")
+        content = public_text(path)
         description = SPECIAL.get(relative) or next(
             (
                 line.strip(' #/*!-"<>')
