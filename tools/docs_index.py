@@ -28,6 +28,9 @@ EXCLUDE = {
     "playwright-report",
 }
 SPECIAL = {
+    "docs/DESKTOP.md": "Complete portable application's file/edit/configure/analyze/export/stop workflow and packaging/security boundaries.",
+    "docs/reports/DESKTOP_CANDIDATE_20261110.md": "Dated uncommitted Windows candidate proof, independent native/UI oracles, label-layout corrections and explicit unpublished limits.",
+    "licenses/PYTHON.txt": "Official Python 3.14.10 runtime license retained with the portable application.",
     ".gitattributes": "Portable text normalization and explicit reviewed Word binary handling.",
     "docs/handbook.md": "Organized current usage, architecture, security and validation entry point.",
     "docs/reports/project-guide.docx": "Reviewed Word guide bound to the documented source revision.",
