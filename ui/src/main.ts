@@ -1,5 +1,7 @@
 /** @file Jason Stys: safe DOM rendering, replay editing and local advisory display; lines: docs/SOURCE_MAP.md. */
 import "./style.css";
+import { desktopControls } from "./desktop";
+import { placeLabels } from "./labels";
 import { type Analysis, point, project, timeline, windowLabel } from "./math";
 
 const root = document.querySelector<HTMLDivElement>("#app")!;
@@ -17,6 +19,18 @@ function element<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
 const editor = element<HTMLTextAreaElement>("replay");
+const windowScroll = document.querySelector<HTMLElement>(
+  ".evidence .table-scroll",
+)!;
+windowScroll.tabIndex = 0;
+windowScroll.setAttribute("role", "region");
+windowScroll.setAttribute("aria-label", "Modeled awareness windows");
+const importLabel = text("label", "Open JSON file ");
+const importFile = document.createElement("input");
+importFile.type = "file";
+importFile.accept = ".json,application/json";
+importLabel.append(importFile);
+editor.before(importLabel);
 const analyzeButton = element<HTMLButtonElement>("analyze");
 const resetButton = element<HTMLButtonElement>("reset");
 const slider = element<HTMLInputElement>("time");
@@ -24,6 +38,16 @@ let analysis: Analysis | null = null;
 let input: Record<string, unknown> | null = null;
 let busy = false;
 let revision = 0;
+let selectedLabel: string | null = null;
+let labelButtons = new Map<string, HTMLButtonElement>();
+const labelNotice = text("p", "");
+labelNotice.className = "muted";
+const labelKey = document.createElement("details");
+labelKey.className = "plot-label-key";
+const labelKeyTitle = text("summary", "Track key and projected positions");
+const labelKeyList = document.createElement("ul");
+labelKey.append(labelKeyTitle, labelKeyList);
+document.getElementById("plot")!.after(labelNotice, labelKey);
 const coveragePanel = document.createElement("section");
 coveragePanel.className = "panel evidence";
 coveragePanel.append(text("h2", "Declared-pair assessment coverage"));
@@ -50,6 +74,9 @@ coverageBody.setAttribute("aria-label", "Declared partner coverage");
 coverageTable.append(coverageHead, coverageBody);
 const coverageScroll = text("div", "");
 coverageScroll.className = "table-scroll";
+coverageScroll.tabIndex = 0;
+coverageScroll.setAttribute("role", "region");
+coverageScroll.setAttribute("aria-label", "Declared-pair coverage table");
 coverageScroll.append(coverageTable);
 coveragePanel.append(
   coverageNotice,
@@ -117,7 +144,18 @@ function svg(
 function draw(): void {
   const plot = document.getElementById("plot")!;
   plot.replaceChildren();
+  labelKeyList.replaceChildren();
+  labelButtons = new Map();
+  labelNotice.textContent = "No current track picture.";
+  labelKeyTitle.textContent = "Track key and projected positions (0)";
   if (!analysis || !input) return;
+  const measured: {
+    name: string;
+    node: SVGElement;
+    bbox: DOMRect;
+    x: number;
+    y: number;
+  }[] = [];
   const seconds = timeline(Number(slider.value), Number(input.horizon_s));
   element("time-value").textContent = `${seconds} s`;
   const extent = Math.max(
@@ -143,6 +181,16 @@ function draw(): void {
     const current = point(position[0], position[1], extent);
     const color =
       track.fresh && track.reference !== "UNKNOWN" ? "#66e3c4" : "#bdc5d0";
+    const marker = svg("circle", {
+      cx: current[0],
+      cy: current[1],
+      r: 5,
+      fill: color,
+      "data-position-track": track.name,
+    });
+    const markerTitle = svg("title", {});
+    markerTitle.textContent = track.name;
+    marker.append(markerTitle);
     plot.append(
       svg("line", {
         x1: start[0],
@@ -160,17 +208,92 @@ function draw(): void {
         stroke: color,
         "stroke-dasharray": "3 3",
       }),
-      svg("circle", { cx: current[0], cy: current[1], r: 5, fill: color }),
+      marker,
     );
     const label = svg("text", {
-      x: current[0] + 9,
-      y: current[1] - 10,
+      x: 0,
+      y: 0,
       fill: color,
       "font-size": 12,
+      visibility: "hidden",
+      "data-label-track": track.name,
     });
     label.textContent = track.name;
     plot.append(label);
+    measured.push({
+      name: track.name,
+      node: label,
+      bbox: (label as SVGGraphicsElement).getBBox(),
+      x: current[0],
+      y: current[1],
+    });
+    const item = document.createElement("li");
+    const choose = document.createElement("button");
+    choose.type = "button";
+    choose.textContent = `Label ${track.name}`;
+    choose.setAttribute("aria-pressed", String(selectedLabel === track.name));
+    choose.addEventListener("click", () => {
+      selectedLabel = track.name;
+      draw();
+      labelButtons.get(track.name)?.focus();
+    });
+    labelButtons.set(track.name, choose);
+    item.append(
+      choose,
+      text(
+        "span",
+        `Projected ENU: ${position.map((value) => value.toFixed(1)).join(", ")} m · ${track.fresh && track.reference !== "UNKNOWN" ? track.reference : "unassessed"}`,
+      ),
+    );
+    labelKeyList.append(item);
   }
+  measured.sort(
+    (a, b) =>
+      Number(b.name === selectedLabel) - Number(a.name === selectedLabel),
+  );
+  const placements = placeLabels(
+    measured.map((item) => ({
+      x: item.x,
+      y: item.y,
+      width: item.bbox.width + 8,
+      height: item.bbox.height + 8,
+    })),
+  );
+  measured.forEach((item, index) => {
+    const box = placements[index];
+    if (!box) {
+      item.node.remove();
+      return;
+    }
+    const line = svg("line", {
+      x1: item.x,
+      y1: item.y,
+      x2: Math.max(box.x, Math.min(box.x + box.width, item.x)),
+      y2: Math.max(box.y, Math.min(box.y + box.height, item.y)),
+      stroke: "#94aebb",
+      "data-label-leader": item.name,
+    });
+    const background = svg("rect", {
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      height: box.height,
+      rx: 3,
+      fill: "#0c1520",
+      stroke: "#304152",
+      "data-label-box": item.name,
+    });
+    plot.insertBefore(line, item.node);
+    plot.insertBefore(background, item.node);
+    item.node.setAttribute("x", String(box.x + 4 - item.bbox.x));
+    item.node.setAttribute("y", String(box.y + 4 - item.bbox.y));
+    item.node.removeAttribute("visibility");
+  });
+  const hidden = placements.filter((item) => item === null).length;
+  labelNotice.textContent = hidden
+    ? `${hidden} names omitted from the crowded picture. Use the track key to read every name and position or prioritize one label.`
+    : "Names have leader lines. The track key provides every name and projected position.";
+  labelKeyTitle.textContent = `Track key and projected positions (${analysis.tracks.length})`;
   const scale = svg("text", {
     x: 12,
     y: 586,
@@ -185,6 +308,7 @@ function invalidate(): void {
   revision += 1;
   analysis = null;
   input = null;
+  selectedLabel = null;
   element<HTMLButtonElement>("download").disabled = true;
   element("status").textContent =
     "Inputs changed or analysis unavailable. No current assessment.";
@@ -329,6 +453,48 @@ slider.addEventListener("input", draw);
 [editor, element("horizon"), element("margin")].forEach((node) =>
   node.addEventListener("input", invalidate),
 );
+/** Import only bounded strict UTF-8 JSON into the existing editor; a newer edit always wins. */
+importFile.addEventListener("change", async () => {
+  const selected = importFile.files?.[0];
+  if (!selected) return;
+  invalidate();
+  const requestedRevision = revision;
+  try {
+    if (selected.size > 262144) throw new Error("Replay exceeds 256 KiB");
+    const raw = await selected.arrayBuffer();
+    if (requestedRevision !== revision) return;
+    if (raw.byteLength > 262144) throw new Error("Replay exceeds 256 KiB");
+    const value = new TextDecoder("utf-8", { fatal: true }).decode(raw);
+    const replay: unknown = JSON.parse(value);
+    if (typeof replay !== "object" || replay === null || Array.isArray(replay))
+      throw new Error("Expected a replay object");
+    const horizon = "horizon_s" in replay ? replay.horizon_s : 60;
+    const margin =
+      "horizontal_margin_m" in replay ? replay.horizontal_margin_m : 100;
+    if (
+      typeof horizon !== "number" ||
+      !Number.isFinite(horizon) ||
+      horizon < 0 ||
+      horizon > 120 ||
+      typeof margin !== "number" ||
+      !Number.isFinite(margin) ||
+      margin < 1 ||
+      margin > 2000
+    )
+      throw new Error("Invalid horizon or awareness margin");
+    editor.value = value;
+    element<HTMLInputElement>("horizon").value = String(horizon);
+    element<HTMLInputElement>("margin").value = String(margin);
+    element("message").textContent =
+      "Imported into the editor. Review controls, then Analyze replay; this file has not been assessed yet.";
+  } catch (error) {
+    if (requestedRevision === revision)
+      element("message").textContent =
+        `Import rejected: ${error instanceof Error ? error.message : "Invalid replay"}. Editor text is unchanged; no current assessment exists.`;
+  } finally {
+    importFile.value = "";
+  }
+});
 /** Export only current evidence in a local downloadable file, not a server-side archive. */
 element("download").addEventListener("click", () => {
   if (!analysis || !input) return;
@@ -345,3 +511,4 @@ element("download").addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 void load();
+void desktopControls();

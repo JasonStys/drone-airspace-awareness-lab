@@ -11,10 +11,10 @@ from pathlib import Path
 from awareness.coverage import assessment_coverage
 from awareness.models import Replay
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[1]))
 BINARY = (
     ROOT
-    / "target/release"
+    / ("native" if getattr(sys, "frozen", False) else "target/release")
     / ("airspace-kernel.exe" if sys.platform == "win32" else "airspace-kernel")
 )
 

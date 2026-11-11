@@ -38,6 +38,13 @@ The responsive website provides an editable replay, horizon/margin controls, a p
 
 ## Start locally
 
+A **0.2.0 desktop application candidate** now includes the real Rust kernel and
+complete editable GUI, bounded JSON file import, readable leader-line labels with
+a keyboard track key, local exports and an owned **Quit application** control.
+This is source for an unpublished portable candidate; no new download is claimed
+until the clean source and cross-platform package checks are accepted. See
+[desktop use, build steps and limits](docs/DESKTOP.md).
+
 Prerequisites: Python 3.12–3.14, Node.js 24, Rust **1.98.1** with rustfmt/clippy, and the platform Rust linker toolchain (Visual Studio C++ Build Tools on Windows, Xcode command-line tools on macOS, GCC/Clang build tools on Linux). Download tools only from their official vendors. This repository does not install or change system software automatically.
 
 ```text

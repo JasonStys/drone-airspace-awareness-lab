@@ -78,9 +78,43 @@ async def validation_error(_request, error):
 def health():
     """Readiness is not a flight-safety judgement."""
     ready = BINARY.is_file()
-    return JSONResponse(
-        {"ready": ready, "mode": "synthetic-local-only"}, status_code=200 if ready else 503
-    )
+    value = {"ready": ready, "mode": "synthetic-local-only"}
+    session = getattr(app.state, "desktop", None)
+    if session is not None:
+        value.update(package=session.metadata, instance=session.instance)
+    return JSONResponse(value, status_code=200 if ready else 503)
+
+
+@app.get("/api/desktop/status")
+def desktop_status(request: Request):
+    """Enable desktop controls only for the matching instance's private in-memory credential."""
+    session = getattr(app.state, "desktop", None)
+    if session is None:
+        return JSONResponse({"error": "Not a desktop session"}, status_code=404)
+    if not session.permitted(request.headers):
+        return JSONResponse({"error": "Owned application token required"}, status_code=403)
+    return {
+        "version": session.metadata["version"],
+        "package": session.metadata,
+        "mode": "synthetic-airspace-only",
+    }
+
+
+@app.post("/api/desktop/exit")
+async def desktop_exit(request: Request):
+    """Quit only this exact launch after explicit same-origin confirmation, never through GET."""
+    session = getattr(app.state, "desktop", None)
+    if session is None:
+        return JSONResponse({"error": "Not a desktop session"}, status_code=404)
+    if not session.permitted(request.headers, require_origin=True):
+        return JSONResponse(
+            {"error": "Owned application token and origin required"}, status_code=403
+        )
+    raw = await request.body()
+    if raw != b'{"action":"quit"}':
+        return JSONResponse({"error": "Exact Quit confirmation required"}, status_code=400)
+    session.request_exit()
+    return JSONResponse({"stopping": True}, status_code=202)
 
 
 @app.get("/api/examples")

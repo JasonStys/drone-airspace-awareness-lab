@@ -1,7 +1,7 @@
 # Jason Stys: strict lint, tests and branch-aware API coverage gate.
 [project]
 name = "drone-airspace-awareness-lab"
-version = "0.1.0"
+version = "0.2.0"
 requires-python = ">=3.12"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
