@@ -69,7 +69,7 @@ application defect or a waived negative check.
 
 ## Package identity and limits
 
-The accepted local Windows ZIP SHA256 is
+The initial accepted local Windows ZIP SHA256 was
 `f3fca5002e0b3525472bcd033cafefe44f8678895a0b79e7668c6ce320197246`.
 Its actual bundled Rust SHA256 is
 `d57998c2da1d93a5537ebe465276d7aea81ec2d7940e076586acd0050c1f9732`.
@@ -92,3 +92,26 @@ projections and worst-horizon bounds are not maneuver predictions, legal flight
 authorization, complete airspace coverage, collision probabilities or live
 avoidance. No account isolation, mobile installation or real operations claim is
 made. The trusted local OS/browser can inspect active plaintext.
+
+## Hosted packaging correction
+
+The first hosted three-OS native run was not wholly green: Linux/Windows passed,
+but macOS job `130246391784` in run `42936084771` failed **before application
+launch**, because the actual collected Rust digest differed from the original
+Cargo-output digest. All original core, browser and CodeQL checks passed. The
+failed run is retained; no hash assertion or native journey was skipped.
+
+[PyInstaller's macOS signing documentation](https://pyinstaller.org/en/stable/feature-notes.html#macos-binary-code-signing)
+explains that its binary processing invalidates existing Mach-O signatures and
+it ad-hoc re-signs collected binaries. Packaging now retains the original
+`kernel_build_sha256`, computes `kernel_sha256` from the actual collected worker,
+and finalizes both controlled inner/outer identities before archiving. Unexpected
+Windows/Linux transformations, missing/oversized workers and stale inner
+identities still fail. Extracted and runtime actual-binary checks stay unchanged.
+Independent real-file fixtures verify both distinct digests and negative cases;
+the corrected hosted macOS result remains pending until a fresh run completes.
+The complete local suite after this correction passed **148 Python tests** at
+the unchanged 99.14% application coverage. A fresh real extracted Windows app
+again passed the complete native GUI/export/negative/Quit journey with no forced
+cleanup. Its ZIP SHA256 is
+`ba3ca517b99a9a4b215af39723511f265252a4a19f27ad33b30927d730db3b15`.

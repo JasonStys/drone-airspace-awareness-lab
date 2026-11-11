@@ -52,6 +52,12 @@ storage. Quit requires the exact bound authority, browser origin and token.
 Use final Python **3.14.10 or a later 3.14 security patch** for freezing. The
 builder rejects older cached runtimes and prereleases. Runtime startup checks its
 recorded Python version and actual bundled Rust SHA256 before announcing readiness.
+The manifest distinguishes the original Cargo-output `kernel_build_sha256` from
+the final collected `kernel_sha256`. PyInstaller processes and ad-hoc re-signs
+macOS Mach-O binaries, so those may legitimately differ there. On Windows/Linux,
+an unexpected transformation fails the build. Both inner/outer manifests are
+finalized before archiving, and extracted/runtime checks hash the actual bundled
+binary rather than accepting the earlier build digest.
 Source development compatibility is separate from this packaging rule.
 
 ```text

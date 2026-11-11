@@ -1,5 +1,6 @@
 """Jason Stys: release version, source cleanliness and archive acceptance contracts. Lines: docs/SOURCE_MAP.md."""
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -8,6 +9,90 @@ import tomllib
 import pytest
 
 from tools import package_app
+
+
+@pytest.mark.parametrize(
+    "platform,modified", [("windows", False), ("linux", False), ("darwin", True)]
+)
+def test_collected_identity_preserves_build_and_actual_packaged_digests(
+    tmp_path, platform, modified
+):
+    """Real independent binary bytes model macOS signing while both inner/outer manifests bind final bytes."""
+    build = b"original compiled kernel"
+    final_bytes = build + b"-ad-hoc-signature" if modified else build
+    original_digest = hashlib.sha256(build).hexdigest()
+    metadata = {"platform": platform, "kernel_sha256": original_digest, "source_commit": "a" * 40}
+    worker = (
+        tmp_path
+        / "_internal/native"
+        / ("airspace-kernel.exe" if platform == "windows" else "airspace-kernel")
+    )
+    worker.parent.mkdir(parents=True)
+    worker.write_bytes(final_bytes)
+    inner = tmp_path / "_internal/awareness/resources/RELEASE.json"
+    inner.parent.mkdir(parents=True)
+    inner.write_text(json.dumps(metadata))
+    result = package_app.finalize_kernel_identity(tmp_path, metadata)
+    assert result["kernel_build_sha256"] == original_digest
+    assert result["kernel_sha256"] == hashlib.sha256(final_bytes).hexdigest()
+    assert (
+        json.loads(inner.read_text())
+        == json.loads((tmp_path / "RELEASE.json").read_text())
+        == result
+    )
+    assert metadata == {
+        "platform": platform,
+        "kernel_sha256": original_digest,
+        "source_commit": "a" * 40,
+    }
+
+
+@pytest.mark.parametrize("platform", ["windows", "linux", "unknown"])
+def test_unexpected_worker_transformation_is_not_silently_accepted(tmp_path, platform):
+    """Only the explicitly documented macOS collection boundary permits a different binary digest."""
+    worker = (
+        tmp_path
+        / "_internal/native"
+        / ("airspace-kernel.exe" if platform == "windows" else "airspace-kernel")
+    )
+    worker.parent.mkdir(parents=True)
+    worker.write_bytes(b"changed bytes")
+    with pytest.raises(ValueError, match="outside macOS"):
+        package_app.finalize_kernel_identity(
+            tmp_path, {"platform": platform, "kernel_sha256": "0" * 64}
+        )
+    assert not (tmp_path / "RELEASE.json").exists()
+
+
+def test_missing_or_oversized_collected_worker_cannot_write_success_identity(tmp_path):
+    """The final hash cannot be copied from the source worker or taken from an excessive file."""
+    metadata = {"platform": "darwin", "kernel_sha256": "0" * 64}
+    with pytest.raises(FileNotFoundError):
+        package_app.finalize_kernel_identity(tmp_path, metadata)
+    worker = tmp_path / "_internal/native/airspace-kernel"
+    worker.parent.mkdir(parents=True)
+    worker.write_bytes(b"x" * (2 * 1024 * 1024 + 1))
+    with pytest.raises(ValueError, match="2 MiB"):
+        package_app.finalize_kernel_identity(tmp_path, metadata)
+    assert not (tmp_path / "RELEASE.json").exists()
+
+
+def test_wrong_collected_manifest_and_empty_worker_fail_before_manifest_rewrite(tmp_path):
+    """A neighboring stale identity cannot be rebound to new worker bytes and presented as this build."""
+    worker = tmp_path / "_internal/native/airspace-kernel"
+    worker.parent.mkdir(parents=True)
+    worker.write_bytes(b"")
+    metadata = {"platform": "darwin", "kernel_sha256": "a" * 64}
+    with pytest.raises(ValueError, match="missing"):
+        package_app.finalize_kernel_identity(tmp_path, metadata)
+    worker.write_bytes(b"real collected bytes")
+    inner = tmp_path / "_internal/awareness/resources/RELEASE.json"
+    inner.parent.mkdir(parents=True)
+    prior = '{"source_commit":"unrelated"}'
+    inner.write_text(prior)
+    with pytest.raises(ValueError, match="identity differs"):
+        package_app.finalize_kernel_identity(tmp_path, metadata)
+    assert inner.read_text() == prior and not (tmp_path / "RELEASE.json").exists()
 
 
 @pytest.mark.parametrize(

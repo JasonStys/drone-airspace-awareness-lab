@@ -10,7 +10,6 @@ import json
 import os
 import platform
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -105,6 +104,34 @@ def source_metadata(version: str, *, allow_dirty: bool = False) -> dict:
     }
 
 
+def finalize_kernel_identity(bundle: Path, metadata: dict) -> dict:
+    """Bind the actual collected worker after legitimate macOS Mach-O processing, retaining both hashes."""
+    worker = (
+        bundle
+        / "_internal/native"
+        / ("airspace-kernel.exe" if metadata["platform"] == "windows" else "airspace-kernel")
+    )
+    with worker.open("rb") as stream:
+        raw = stream.read(2 * 1024 * 1024 + 1)
+    require(0 < len(raw) <= 2 * 1024 * 1024, "Collected Rust kernel missing or exceeded 2 MiB")
+    collected = hashlib.sha256(raw).hexdigest()
+    require(
+        collected == metadata["kernel_sha256"] or metadata["platform"] == "darwin",
+        "Unexpected collected Rust transformation outside macOS",
+    )
+    inner = bundle / "_internal/awareness/resources/RELEASE.json"
+    require(json.loads(inner.read_text(encoding="utf-8")) == metadata, "Collected identity differs")
+    final = {
+        **metadata,
+        "kernel_build_sha256": metadata["kernel_sha256"],
+        "kernel_sha256": collected,
+    }
+    encoded = json.dumps(final, indent=2) + "\n"
+    inner.write_text(encoded, encoding="utf-8")
+    (bundle / "RELEASE.json").write_text(encoded, encoding="utf-8")
+    return final
+
+
 def main(argv=None) -> int:
     """Build and test the archive actually produced; no source-server fallback or existing target reuse."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -191,7 +218,7 @@ def main(argv=None) -> int:
         "Source identity changed during build",
     )
     bundle = build / APPLICATION
-    shutil.copyfile(identity_file, bundle / "RELEASE.json")
+    metadata = finalize_kernel_identity(bundle, metadata)
     suffix = ".zip" if sys.platform == "win32" else ".tar.gz"
     name = f"{PRODUCT}-v{version}-{metadata['platform']}-{metadata['machine']}"
     output = args.output_root.resolve()
