@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "repository": "drone-airspace-awareness-lab",
+  "runtimeVersion": "0.2.0",
+  "runtimeSource": "bd6ae7ed687290f03c73d8185427010167368785",
+  "createdAt": "2026-11-11T07:12:03.338Z",
+  "author": "Jason Stys",
+  "document": "windows-application-guide-0.2.0.docx",
+  "sha256": "b36b82af47c9cc6f2618f05525a0bf562d967bf172c7732f3a76750c443522b2",
+  "screenshots": [
+    {
+      "file": "01-imported-crossing-focused.png",
+      "sha256": "0a377f66e0c677d846b8a4fddb7eaae76d2325667b71c43ca0b46c904d9fdca5",
+      "width": 758,
+      "height": 541,
+      "caption": "The selected 120-second snapshot of the actual synthetic traffic plot retains readable labels and a metre scale; it is advisory, not flight clearance."
+    },
+    {
+      "file": "02-unassessed-pairs.png",
+      "sha256": "733fd1ea4b5694e4b27df40ebbd7a25e90db58d95b856957306dd69a0407d0d1",
+      "width": 1360,
+      "height": 410,
+      "caption": "Coverage and unassessed pairs remain visible in the installed awareness viewer instead of being interpreted as safe traffic."
+    }
+  ],
+  "snippets": [
+    {
+      "file": "native/main.rs",
+      "first": 48,
+      "last": 68,
+      "sha256": "f1bb21346272cf86f1bc7c1bf51526e9dd155d471e1a02df3011225c8d7c3af8",
+      "url": "https://github.com/JasonStys/drone-airspace-awareness-lab/blob/bd6ae7ed687290f03c73d8185427010167368785/native/main.rs#L48"
+    }
+  ],
+  "observedTests": [
+    {
+      "name": "Real native workflows",
+      "observed": "The unchanged full installed-app consumer passed actual file import, original engine/results, role boundaries where applicable, exports, negative cases and normal owner Quit.",
+      "result": "Passed"
+    },
+    {
+      "name": "Source and security",
+      "observed": "All required main workflows for the runtime revision passed; processed CodeQL analyses reported zero open main alerts before release.",
+      "result": "Passed"
+    },
+    {
+      "name": "Distribution identity",
+      "observed": "All 2 assets matched provider/checksum identities; all 117 installed files remained unchanged during acceptance.",
+      "result": "Verified"
+    },
+    {
+      "name": "PC scope",
+      "observed": "New per-user version folder and individual links verified. Synthetic inputs and isolated outputs only; existing data and Docker were not used or changed.",
+      "result": "Verified"
+    }
+  ],
+  "visualReview": {
+    "approved": true,
+    "reviewer": "audit_space_drone",
+    "ooxmlSchema": "passed",
+    "pages": [
+      {
+        "page": 1,
+        "sha256": "033ecd3524ec21ee045eb48b68ae7b42403e9873dfc655b46ea0bef5f32533d1"
+      },
+      {
+        "page": 2,
+        "sha256": "8e26ab2fe5e883fd2bbfe87143c45170006622bfe90e5dcfae38a797139baed9"
+      },
+      {
+        "page": 3,
+        "sha256": "e10b323a6688e339582f45e9c4fcaa62c0d93219bf0af970a1b6bd828fac5550"
+      },
+      {
+        "page": 4,
+        "sha256": "ec5c72fefc3b93dd31e160fdd6c9c0f0345bbfb32d5dfcaa6614bbe0d754024f"
+      }
+    ],
+    "scope": "All four final pages individually inspected at original resolution; exact installed synthetic screenshots and immutable code; no ordinary user data."
+  }
+}

@@ -28,6 +28,9 @@ EXCLUDE = {
     "playwright-report",
 }
 SPECIAL = {
+    "docs/reports/windows-application-guide-0.2.0.docx": "Current four-page installed application guide with two actual screenshots, immutable source and operating limits.",
+    "docs/reports/windows-application-guide-0.2.0.json": "Exact Word, installed screenshot, immutable code and individually reviewed page identities.",
+    "docs/reports/installed-windows-0.2.0-2026-11-11.md": "Observed installed workflows, distribution identity, practical instructions and precise validation limits.",
     "docs/DESKTOP.md": "Complete portable application's file/edit/configure/analyze/export/stop workflow and packaging/security boundaries.",
     "docs/reports/DESKTOP_CANDIDATE_20261110.md": "Dated uncommitted Windows candidate proof, independent native/UI oracles, label-layout corrections and explicit unpublished limits.",
     "licenses/PYTHON.txt": "Official Python 3.14.10 runtime license retained with the portable application.",
@@ -50,8 +53,11 @@ SPECIAL = {
 
 
 def public_text(path: Path) -> str:
-    """Inspect all XML/relationships in the one authored Word path; unknown binary files still fail closed."""
-    if path.relative_to(ROOT).as_posix() != "docs/reports/project-guide.docx":
+    """Inspect all XML/relationships in the exact reviewed Word paths; unknown binary files still fail closed."""
+    if path.relative_to(ROOT).as_posix() not in {
+        "docs/reports/project-guide.docx",
+        "docs/reports/windows-application-guide-0.2.0.docx",
+    }:
         return path.read_text(encoding="utf-8")
     with ZipFile(path) as package:
         members = package.infolist()
